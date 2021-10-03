@@ -48,6 +48,10 @@ async function get_login_state(object) {
   return await bcrypt.compare(object.password, users_password)
 }
 
+async function check_login(object) {
+  if(!get_login_state(object)) throw new Error('permission denied')
+}
+
 fastify.post('/get/login_state', async (request, reply) => {
   try {
     checkProperty(request.body, 'authorization')
@@ -59,11 +63,24 @@ fastify.post('/get/login_state', async (request, reply) => {
 
 fastify.post('/post/data', async (request, reply) => {
   try {
-    const client = new Client(autorization_settings)
-    client.connect()
-    const data = await client.query('select * from data')
+
+    checkProperty(request.body, 'authorization')
+    check_login(request.body.authorization)
+
+    checkProperty(request.body, 'data')
+    checkProperty(request.body.data, 'text')
+
     if(data.rowCount == 0)
       throw new Error('table is empty')
+
+    const client = new Client(autorization_settings)
+    client.connect()
+
+    const data = await client.query(
+      'insert into data("time", "username", "is_edited", "text") values($1,$2,false,$3)',
+      [new Date(), request.body.authorization.username, request.body.data.text])
+    client.end()
+
     return data.rows
   } catch (err) {
     return err
