@@ -109,6 +109,30 @@ fastify.post('/delete/data', async (request, reply) => {
   }
 })
 
+fastify.post('/put/data', async (request, reply) => {
+  try {
+
+    checkProperty(request.body, 'authorization')
+    check_login(request.body.authorization)
+
+    checkProperty(request.body, 'data')
+    checkProperty(request.body.data, 'id')
+    checkProperty(request.body.data, 'text')
+
+    const client = new Client(autorization_settings)
+    client.connect()
+
+    const data = await client.query('update data set text = $1 where id = $2',[request.body.data.text, request.body.data.id])
+    if(data.rowCount == 0)
+      throw new Error('table is empty')
+    client.end()
+
+    return data.rows
+  } catch (err) {
+    return err
+  }
+})
+
 const start = async () => {
   try {
     await fastify.listen(3000)
