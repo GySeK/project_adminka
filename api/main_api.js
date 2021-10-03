@@ -70,15 +70,37 @@ fastify.post('/post/data', async (request, reply) => {
     checkProperty(request.body, 'data')
     checkProperty(request.body.data, 'text')
 
-    if(data.rowCount == 0)
-      throw new Error('table is empty')
-
     const client = new Client(autorization_settings)
     client.connect()
 
     const data = await client.query(
       'insert into data("time", "username", "is_edited", "text") values($1,$2,false,$3)',
       [new Date(), request.body.authorization.username, request.body.data.text])
+    if(data.rowCount == 0)
+      throw new Error('table is empty')
+    client.end()
+
+    return data.rows
+  } catch (err) {
+    return err
+  }
+})
+
+fastify.post('/delete/data', async (request, reply) => {
+  try {
+
+    checkProperty(request.body, 'authorization')
+    check_login(request.body.authorization)
+
+    checkProperty(request.body, 'data')
+    checkProperty(request.body.data, 'id')
+
+    const client = new Client(autorization_settings)
+    client.connect()
+
+    const data = await client.query('delete from data where id = $1',[request.body.data.id])
+    if(data.rowCount == 0)
+      throw new Error('table is empty')
     client.end()
 
     return data.rows
