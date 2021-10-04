@@ -137,6 +137,29 @@ fastify.post('/delete/data', async (request, reply) => {
   }
 })
 
+fastify.post('/delete/user', async (request, reply) => {
+  try {
+
+    checkProperty(request.body, 'authorization')
+    check_login(request.body.authorization)
+
+    checkProperty(request.body, 'data')
+    checkProperty(request.body.data, 'username')
+
+    const client = new Client(autorization_settings)
+    client.connect()
+
+    const data = await client.query('delete from users where username = $1',[request.body.data.username])
+    if(data.rowCount == 0)
+      throw new Error('table is empty')
+    client.end()
+
+    return data.rows
+  } catch (err) {
+    return err
+  }
+})
+
 fastify.post('/put/data', async (request, reply) => {
   try {
 
