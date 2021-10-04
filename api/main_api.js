@@ -86,6 +86,34 @@ fastify.post('/post/data', async (request, reply) => {
   }
 })
 
+fastify.post('/post/user', async (request, reply) => {
+  try {
+
+    checkProperty(request.body, 'authorization')
+    check_login(request.body.authorization)
+
+    checkProperty(request.body, 'data')
+    checkProperty(request.body.data, 'username')
+    checkProperty(request.body.data, 'password')
+    checkProperty(request.body.data, 'attributes')
+
+    const client = new Client(autorization_settings)
+    client.connect()
+
+    const data = await client.query(
+      'insert into users("username", "password", "attributes") values($1,$2,$3)',
+      [request.body.data.username, await bcrypt.hash(request.body.data.password, 12),
+      request.body.data.attributes])
+    if(data.rowCount == 0)
+      throw new Error('table is empty')
+    client.end()
+
+    return data.rows
+  } catch (err) {
+    return err
+  }
+})
+
 fastify.post('/delete/data', async (request, reply) => {
   try {
 
