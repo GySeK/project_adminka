@@ -165,7 +165,7 @@ fastify.post('/put/data', async (request, reply) => {
     const client = new Client(autorization_settings)
     client.connect()
 
-    const data = await client.query('update data set text = $1 where id = $2',[request.body.data.text, request.body.data.id])
+    const data = await client.query('update data set text = $1,is_edited = true where id = $2',[request.body.data.text, request.body.data.id])
     client.end()
 
     return data.rows
