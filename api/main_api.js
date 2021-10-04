@@ -49,7 +49,7 @@ async function get_login_state(object) {
 }
 
 async function check_login(object) {
-  if(!get_login_state(object)) throw new Error('permission denied')
+  if(!await get_login_state(object)) throw new Error('permission denied')
 }
 
 fastify.post('/get/login_state', async (request, reply) => {
@@ -65,7 +65,7 @@ fastify.post('/post/data', async (request, reply) => {
   try {
 
     checkProperty(request.body, 'authorization')
-    check_login(request.body.authorization)
+    await check_login(request.body.authorization)
 
     checkProperty(request.body, 'data')
     checkProperty(request.body.data, 'text')
@@ -76,8 +76,6 @@ fastify.post('/post/data', async (request, reply) => {
     const data = await client.query(
       'insert into data("time", "username", "is_edited", "text") values($1,$2,false,$3)',
       [new Date(), request.body.authorization.username, request.body.data.text])
-    if(data.rowCount == 0)
-      throw new Error('table is empty')
     client.end()
 
     return data.rows
@@ -90,7 +88,7 @@ fastify.post('/post/user', async (request, reply) => {
   try {
 
     checkProperty(request.body, 'authorization')
-    check_login(request.body.authorization)
+    await check_login(request.body.authorization)
 
     checkProperty(request.body, 'data')
     checkProperty(request.body.data, 'username')
@@ -104,8 +102,6 @@ fastify.post('/post/user', async (request, reply) => {
       'insert into users("username", "password", "attributes") values($1,$2,$3)',
       [request.body.data.username, await bcrypt.hash(request.body.data.password, 12),
       request.body.data.attributes])
-    if(data.rowCount == 0)
-      throw new Error('table is empty')
     client.end()
 
     return data.rows
@@ -118,7 +114,7 @@ fastify.post('/delete/data', async (request, reply) => {
   try {
 
     checkProperty(request.body, 'authorization')
-    check_login(request.body.authorization)
+    await check_login(request.body.authorization)
 
     checkProperty(request.body, 'data')
     checkProperty(request.body.data, 'id')
@@ -127,8 +123,6 @@ fastify.post('/delete/data', async (request, reply) => {
     client.connect()
 
     const data = await client.query('delete from data where id = $1',[request.body.data.id])
-    if(data.rowCount == 0)
-      throw new Error('table is empty')
     client.end()
 
     return data.rows
@@ -141,7 +135,7 @@ fastify.post('/delete/user', async (request, reply) => {
   try {
 
     checkProperty(request.body, 'authorization')
-    check_login(request.body.authorization)
+    await check_login(request.body.authorization)
 
     checkProperty(request.body, 'data')
     checkProperty(request.body.data, 'username')
@@ -150,8 +144,6 @@ fastify.post('/delete/user', async (request, reply) => {
     client.connect()
 
     const data = await client.query('delete from users where username = $1',[request.body.data.username])
-    if(data.rowCount == 0)
-      throw new Error('table is empty')
     client.end()
 
     return data.rows
@@ -164,7 +156,7 @@ fastify.post('/put/data', async (request, reply) => {
   try {
 
     checkProperty(request.body, 'authorization')
-    check_login(request.body.authorization)
+    await check_login(request.body.authorization)
 
     checkProperty(request.body, 'data')
     checkProperty(request.body.data, 'id')
@@ -174,8 +166,6 @@ fastify.post('/put/data', async (request, reply) => {
     client.connect()
 
     const data = await client.query('update data set text = $1 where id = $2',[request.body.data.text, request.body.data.id])
-    if(data.rowCount == 0)
-      throw new Error('table is empty')
     client.end()
 
     return data.rows
@@ -188,7 +178,7 @@ fastify.post('/put/user/username', async (request, reply) => {
   try {
 
     checkProperty(request.body, 'authorization')
-    check_login(request.body.authorization)
+    await check_login(request.body.authorization)
 
     checkProperty(request.body, 'data')
     checkProperty(request.body.data, 'username')
@@ -197,8 +187,27 @@ fastify.post('/put/user/username', async (request, reply) => {
     client.connect()
 
     const data = await client.query('update users set username = $1 where username = $2', [request.body.data.username, request.body.authorization.username])
-    if(data.rowCount == 0)
-      throw new Error('table is empty')
+    client.end()
+
+    return data.rows
+  } catch (err) {
+    return err
+  }
+})
+
+fastify.post('/put/user/password', async (request, reply) => {
+  try {
+
+    checkProperty(request.body, 'authorization')
+    await check_login(request.body.authorization)
+
+    checkProperty(request.body, 'data')
+    checkProperty(request.body.data, 'password')
+
+    const client = new Client(autorization_settings)
+    client.connect()
+
+    const data = await client.query('update users set password = $1 where username = $2', [await bcrypt.hash(request.body.data.password, 12), request.body.authorization.username])
     client.end()
 
     return data.rows
