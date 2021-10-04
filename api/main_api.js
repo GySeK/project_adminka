@@ -110,6 +110,7 @@ fastify.post('/post/user', async (request, reply) => {
 
     checkProperty(request.body, 'authorization')
     await check_login(request.body.authorization)
+    await check_permission(request.body.authorization, 'administrate')
 
     checkProperty(request.body, 'data')
     checkProperty(request.body.data, 'username')
@@ -136,6 +137,7 @@ fastify.post('/delete/data', async (request, reply) => {
 
     checkProperty(request.body, 'authorization')
     await check_login(request.body.authorization)
+    await check_permission(request.body.authorization, 'write')
 
     checkProperty(request.body, 'data')
     checkProperty(request.body.data, 'id')
@@ -157,6 +159,7 @@ fastify.post('/delete/user', async (request, reply) => {
 
     checkProperty(request.body, 'authorization')
     await check_login(request.body.authorization)
+    await check_permission(request.body.authorization, 'administrate')
 
     checkProperty(request.body, 'data')
     checkProperty(request.body.data, 'username')
@@ -179,6 +182,7 @@ fastify.post('/put/data', async (request, reply) => {
 
     checkProperty(request.body, 'authorization')
     await check_login(request.body.authorization)
+    await check_permission(request.body.authorization, 'write')
 
     checkProperty(request.body, 'data')
     checkProperty(request.body.data, 'id')
