@@ -184,6 +184,29 @@ fastify.post('/put/data', async (request, reply) => {
   }
 })
 
+fastify.post('/put/user/username', async (request, reply) => {
+  try {
+
+    checkProperty(request.body, 'authorization')
+    check_login(request.body.authorization)
+
+    checkProperty(request.body, 'data')
+    checkProperty(request.body.data, 'username')
+
+    const client = new Client(autorization_settings)
+    client.connect()
+
+    const data = await client.query('update users set username = $1 where username = $2', [request.body.data.username, request.body.authorization.username])
+    if(data.rowCount == 0)
+      throw new Error('table is empty')
+    client.end()
+
+    return data.rows
+  } catch (err) {
+    return err
+  }
+})
+
 const start = async () => {
   try {
     await fastify.listen(3000)
