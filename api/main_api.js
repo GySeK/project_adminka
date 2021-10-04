@@ -61,19 +61,40 @@ fastify.post('/get/login_state', async (request, reply) => {
   }
 })
 
+async function get_permission_state(object, permission) {
+  const client = new Client(autorization_settings)
+  client.connect()
+
+  const users = await client.query('select attributes from users where username = $1',
+    [object.username])
+  client.end()
+
+  checkProperty(users.rows[0].attributes, 'permissions')
+  for(let users_permission of users.rows[0].attributes.permissions) {
+    if(users_permission == permission) return true
+  }
+
+  return false
+}
+
+async function check_permission(object, permission) {
+  if(!await get_permission_state(object, permission)) 
+    throw new Error('Нет permission у пользователя')
+}
+
 fastify.post('/post/data', async (request, reply) => {
   try {
-
     checkProperty(request.body, 'authorization')
     await check_login(request.body.authorization)
-
+    await check_permission(request.body.authorization, 'write')
+    
     checkProperty(request.body, 'data')
     checkProperty(request.body.data, 'text')
 
     const client = new Client(autorization_settings)
     client.connect()
 
-    const data = await client.query(
+    let data = await client.query(
       'insert into data("time", "username", "is_edited", "text") values($1,$2,false,$3)',
       [new Date(), request.body.authorization.username, request.body.data.text])
     client.end()
@@ -143,7 +164,8 @@ fastify.post('/delete/user', async (request, reply) => {
     const client = new Client(autorization_settings)
     client.connect()
 
-    const data = await client.query('delete from users where username = $1',[request.body.data.username])
+    const data = await client.query('delete from users where username = $1',
+      [request.body.data.username])
     client.end()
 
     return data.rows
