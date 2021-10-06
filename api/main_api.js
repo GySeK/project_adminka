@@ -21,31 +21,26 @@ fastify.post("/get/data", async (request, reply) => {
     if (data.rowCount == 0) throw new Error("table is empty");
 
     checkProperty(request.body, "data");
-    if ("search_string" in request.body.data) {
-      let data_after_search = data.rows;
-      for (let search_string_item of request.body.data.search_string.split(
-        " "
-      )) {
-        console.log(search_string_item)
-        let data_during_search = []
-        for (
-          let data_rows_count = 0;
-          data_rows_count < data_after_search.length;
-          data_rows_count++
-        ) {
-          for (let data_row_property in data_after_search[data_rows_count]) {
-            const data_row_value =
-              data_after_search[data_rows_count][data_row_property];
-            if (search_string_item == data_row_value)
-              data_during_search.push(data_after_search[data_rows_count]);
-          }
+    checkProperty(request.body.data, "search_string");
+    let data_after_search = data.rows;
+    for (let search_string_item of request.body.data.search_string.split(" ")) {
+      let data_during_search = [];
+      for (
+        let data_rows_count = 0;
+        data_rows_count < data_after_search.length;
+        data_rows_count++
+      ) {
+        for (let data_row_property in data_after_search[data_rows_count]) {
+          const data_row_value =
+            data_after_search[data_rows_count][data_row_property];
+          if (search_string_item == data_row_value)
+            data_during_search.push(data_after_search[data_rows_count]);
         }
-        data_after_search = data_during_search
-        console.log(data_after_search)
       }
-
-      return data_after_search;
+      data_after_search = data_during_search;
     }
+
+    return data_after_search;
 
     return data.rows;
   } catch (err) {
