@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper_flex_border_780 jc_start m_0_auto">
+  <div class="wrapper_flex_border_780 m_0_auto">
     <div class="h_26-2 flex ai_c mb_10">
       <input
         v-model="search_string"
@@ -58,7 +58,7 @@ export default {
       //data
       list_records: [],
       search_string: "",
-      load_list_records_error_message: ""
+      load_list_records_error_message: "",
     };
   },
   methods: {
@@ -66,7 +66,10 @@ export default {
       axios
         .post("/get/data", { data: { search_string: this.search_string } })
         .then((response) => (this.list_records = response.data))
-        .catch(() => {this.load_list_records_error_message = "Произошла ошибка при выполнении запроса"})
+        .catch(() => {
+          this.load_list_records_error_message =
+            "Произошла ошибка при выполнении запроса";
+        });
     },
   },
   mounted() {
