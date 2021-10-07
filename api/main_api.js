@@ -51,32 +51,26 @@ fastify.post("/get/data", async (request, reply) => {
     checkProperty(request.body, "data");
     checkProperty(request.body.data, "search_string");
 
+    if(request.body.data.search_string == "")
+      return data.rows
+
     let data_after_search = data.rows;
 
     for (let search_string_item of request.body.data.search_string.split(" ")) {
       let data_during_search = [];
-      /*for (
-        let data_rows_count = 0;
-        data_rows_count < data_after_search.length;
-        data_rows_count++
-      ) {*/
-      for(let data_after_search_list of data_after_search){
+      for (let data_after_search_list of data_after_search) {
         for (let data_row_property in data_after_search_list) {
-          if (search_string_item == data_after_search_list[data_row_property])
-            data_during_search.push(data_after_search_list);
+          console.log(data_row_property);
+          if (data_row_property != "text" && data_row_property != "is_edited") {
+            if (search_string_item == data_after_search_list[data_row_property])
+              data_during_search.push(data_after_search_list);
+          }
         }
       }
-      //}
       data_after_search = data_during_search;
     }
 
-    for(let data_after_search_list of data_after_search) {
-      delete data_after_search_list.text
-      delete data_after_search_list.is_edited
-    }
-
     return data_after_search;
-    return data.rows;
   } catch (err) {
     return err;
   }
