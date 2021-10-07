@@ -10,7 +10,7 @@
   "dependencies": {
     "axios": "^0.22.0",
     "bcryptjs": "^2.4.3",
-    "core-js": "^3.6.5",
+    "core-js": "^3.18.2",
     "fastify": "^3.22.0",
     "pg": "^8.7.1",
     "vue": "^3.0.0",

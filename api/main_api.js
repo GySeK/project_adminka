@@ -10,44 +10,6 @@ const autorization_settings = {
   port: 5432,
 };
 
-fastify.post("/get/data", async (request, reply) => {
-  try {
-    const client = new Client(autorization_settings);
-    client.connect();
-
-    const data = await client.query("select * from data");
-    client.end();
-
-    if (data.rowCount == 0) throw new Error("table is empty");
-
-    checkProperty(request.body, "data");
-    checkProperty(request.body.data, "search_string");
-    let data_after_search = data.rows;
-    for (let search_string_item of request.body.data.search_string.split(" ")) {
-      let data_during_search = [];
-      for (
-        let data_rows_count = 0;
-        data_rows_count < data_after_search.length;
-        data_rows_count++
-      ) {
-        for (let data_row_property in data_after_search[data_rows_count]) {
-          const data_row_value =
-            data_after_search[data_rows_count][data_row_property];
-          if (search_string_item == data_row_value)
-            data_during_search.push(data_after_search[data_rows_count]);
-        }
-      }
-      data_after_search = data_during_search;
-    }
-
-    return data_after_search;
-
-    return data.rows;
-  } catch (err) {
-    return err;
-  }
-});
-
 function checkProperty(object, property) {
   if (property in object == false)
     throw new Error(`Свойства ${property} нет в Объекте`);
@@ -75,6 +37,71 @@ async function get_login_state(object) {
 async function check_login(object) {
   if (!(await get_login_state(object))) throw new Error("permission denied");
 }
+
+fastify.post("/get/data", async (request, reply) => {
+  try {
+    const client = new Client(autorization_settings);
+    client.connect();
+
+    const data = await client.query("select * from data");
+    client.end();
+
+    if (data.rowCount == 0) throw new Error("table is empty");
+
+    checkProperty(request.body, "data");
+    checkProperty(request.body.data, "search_string");
+
+    let data_after_search = data.rows;
+
+    for (let search_string_item of request.body.data.search_string.split(" ")) {
+      let data_during_search = [];
+      /*for (
+        let data_rows_count = 0;
+        data_rows_count < data_after_search.length;
+        data_rows_count++
+      ) {*/
+      for(let data_after_search_list of data_after_search){
+        for (let data_row_property in data_after_search_list) {
+          if (search_string_item == data_after_search_list[data_row_property])
+            data_during_search.push(data_after_search_list);
+        }
+      }
+      //}
+      data_after_search = data_during_search;
+    }
+
+    for(let data_after_search_list of data_after_search) {
+      delete data_after_search_list.text
+      delete data_after_search_list.is_edited
+    }
+
+    return data_after_search;
+    return data.rows;
+  } catch (err) {
+    return err;
+  }
+});
+
+fastify.post("/get/user", async (request, reply) => {
+  try {
+    checkProperty(request.body, "authorization");
+    await check_login(request.body.authorization);
+
+    const client = new Client(autorization_settings);
+    client.connect();
+
+    const data = await client.query("select * from users where username = $1", [
+      request.body.authorization.username,
+    ]);
+    client.end();
+
+    if (data.rowCount == 0) throw new Error("table is empty");
+
+    return data.rows;
+  } catch (err) {
+    return err;
+  }
+});
 
 fastify.post("/get/login_state", async (request, reply) => {
   try {
