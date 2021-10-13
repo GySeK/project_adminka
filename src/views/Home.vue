@@ -1,17 +1,34 @@
 <template>
   <div class="wrapper_flex_border_780 m_0_auto">
-    <div class="h_26-2 flex ai_c mb_10">
+    <div class="flex ai_c fw_w">
       <input
         v-model="search_string"
-        class="input_square-border_1 h_26-2 mr_10 fg_1"
+        class="input_square-border_1 h_26-2 mb_10 mr_10 fg_1"
       />
       <button
         @click="load_list_records()"
-        class="button_square-border_1 h_26-2 mr_10"
+        class="button_square-border_1 h_26-2 mb_10 mr_10"
       >
         Поиск
       </button>
-      <router-link to="/login" class="mr_10 input_square-border"
+      <div v-if="user_data != null">
+        <button
+          @click="logout()"
+          class="h_26-2 mb_10 mr_10 button_square-border_1"
+        >
+          Выход
+        </button>
+        <router-link v-if="checkPermission('write')" class="mr_10" to="/write"
+          >Запись</router-link
+        >
+        <router-link
+          v-if="checkPermission('administrate')"
+          class="mr_10"
+          to="/administrate"
+          >Администрирование</router-link
+        >
+      </div>
+      <router-link to="/login" v-if="user_data == null" class="mr_10 mb_10"
         >Вход</router-link
       >
     </div>
@@ -22,7 +39,7 @@
     </div>
 
     <div v-for="record in list_records" :key="record.id">
-      <div class="mt_10 b_1">
+      <div class="b_1">
         <div class="date">
           <span class="c_w b_b">Время публикации:</span>
           {{ record.time }}
@@ -51,6 +68,7 @@
 <script>
 import "@/assets/main.css";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 export default {
   data() {
@@ -59,6 +77,9 @@ export default {
       list_records: [],
       search_string: "",
       load_list_records_error_message: "",
+
+      //user
+      user_data: null,
     };
   },
   methods: {
@@ -71,9 +92,24 @@ export default {
             "Произошла ошибка при выполнении запроса";
         });
     },
+    checkPermission(permission_parameter) {
+      for (let user_data_attributes_permission of this.user_data.attributes
+        .permissions) {
+        if (user_data_attributes_permission == permission_parameter)
+          return true;
+      }
+      return false;
+    },
+    logout() {
+      Cookies.remove("user")
+      location.reload()
+    }
   },
   mounted() {
     this.load_list_records();
+
+    if ("user" in Cookies.get())
+      this.user_data = JSON.parse(Cookies.get("user"));
   },
 };
 </script>

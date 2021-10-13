@@ -91,7 +91,7 @@ fastify.post("/get/user", async (request, reply) => {
 
     if (data.rowCount == 0) throw new Error("table is empty");
 
-    return data.rows;
+    return data.rows[0];
   } catch (err) {
     return err;
   }

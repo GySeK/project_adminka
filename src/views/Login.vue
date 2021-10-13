@@ -8,26 +8,36 @@
     <input v-model="username" class="input_square-border_1 h_26-2 mb_10" />
 
     <span class="mb_10">Пароль</span>
-    <input v-model="password" class="input_square-border_1 h_26-2 mb_10" />
+    <input
+      type="password"
+      v-model="password"
+      class="input_square-border_1 h_26-2 mb_10"
+    />
 
     <button
-      @click="get_user()"
+      @click="get_user_set_cookie()"
       class="button_square-border_1 h_26-2 mr_10 mb_10"
     >
       Далее
     </button>
 
-    {{ user_data }}
-
-    <!--<router-link to="/login" class="mr_10 input_square-border"
-      >Вход</router-link
-    >-->
+    <div v-if="user_data != null">
+      <router-link class="mr_10" to="/">Поиск</router-link>
+      <router-link v-if="checkPermission('write')" class="mr_10" to="/write"
+        >Запись</router-link
+      >
+      <router-link v-if="checkPermission('administrate')" to="/administrate"
+        >Администрирование</router-link
+      >
+    </div>
+    <!--{{ user_data }}-->
   </div>
 </template>
 
 <script>
 import "@/assets/main.css";
 import axios from "axios";
+import Cookies from 'js-cookie'
 
 export default {
   data() {
@@ -44,20 +54,34 @@ export default {
     };
   },
   methods: {
-    get_user() {
-      if(this.username == null || this.password == null) {
-        this.get_user_error_message = "Введите имя пользователя или пароль"
-        return
+    get_user_set_cookie() {
+      if (this.username == null || this.password == null) {
+        this.get_user_error_message = "Введите имя пользователя или пароль";
+        return;
       }
       axios
         .post("/get/user", {
           authorization: { username: this.username, password: this.password },
         })
-        .then((response) => (this.user_data = response.data))
+        .then((response) => {
+          this.user_data = response.data;
+          Cookies.set("user", JSON.stringify(this.user_data))
+          //const user = JSON.parse(Cookies.get('user'))
+          //console.log(user.attributes.permissions)
+          this.get_user_error_message = "";
+        })
         .catch(() => {
           this.get_user_error_message =
             "Произошла ошибка при выполнении запроса";
         });
+    },
+    checkPermission(permission_parameter) {
+      for (let user_data_attributes_permission of this.user_data.attributes
+        .permissions) {
+        if (user_data_attributes_permission == permission_parameter)
+          return true;
+      }
+      return false;
     },
   },
 };

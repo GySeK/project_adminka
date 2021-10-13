@@ -1,26 +1,29 @@
 #app {
-  display:flex;
+  display: flex;
 }
 .m_auto {
-margin: auto;
+  margin: auto !important;
 }
 .m_0_auto {
-margin: 0 auto;
+  margin: 0 auto !important;
 }
 .m_auto_0 {
-margin: auto 0;
+  margin: auto 0 !important;
 }
 .jc_start {
-justify-content: flex-start;
+  justify-content: flex-start !important;
 }
 .ai_start {
-align-items: flex-start;
+  align-items: flex-start !important;
+}
+.fw_w {
+  flex-wrap: wrap !important;
 }
 .c_w {
   color: white;
 }
 .b_b {
-  background: black;
+  background: black !important;
 }
 * {
   box-sizing: border-box;
@@ -41,7 +44,7 @@ align-items: flex-start;
   outline: none;
 }
 .fg_1 {
-  flex-grow: 1;
+  flex-grow: 1 !important;
 }
 a {
   color: black;
