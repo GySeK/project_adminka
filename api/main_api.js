@@ -35,7 +35,7 @@ async function get_login_state(object) {
 }
 
 async function check_login(object) {
-  if (!(await get_login_state(object))) throw new Error("permission denied");
+  if (!(await get_login_state(object))) throw new Error("Не удалось авторизироваться");
 }
 
 fastify.post("/get/data", async (request, reply) => {
@@ -43,7 +43,7 @@ fastify.post("/get/data", async (request, reply) => {
     const client = new Client(autorization_settings);
     client.connect();
 
-    const data = await client.query("select * from data");
+    const data = await client.query("select * from data order by id desc");
     client.end();
 
     if (data.rowCount == 0) throw new Error("table is empty");
@@ -137,6 +137,9 @@ fastify.post("/post/data", async (request, reply) => {
 
     checkProperty(request.body, "data");
     checkProperty(request.body.data, "text");
+
+    if(request.body.data.text == "")
+      throw new Error("Пустое свойство text")
 
     const client = new Client(autorization_settings);
     client.connect();

@@ -65,7 +65,6 @@ export default {
         })
         .then((response) => {
           this.user_data = response.data;
-          this.user_data.password = this.password
           Cookies.set("user", JSON.stringify(this.user_data))
           //const user = JSON.parse(Cookies.get('user'))
           //console.log(user.attributes.permissions)

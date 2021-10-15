@@ -13,11 +13,20 @@
 .jc_start {
   justify-content: flex-start !important;
 }
+.jc_s-b {
+  justify-content: space-between !important;
+}
+.ac_start {
+  align-content: flex-start !important;
+}
 .ai_start {
   align-items: flex-start !important;
 }
 .fw_w {
   flex-wrap: wrap !important;
+}
+.mw_200 {
+  max-width: 200px !important;
 }
 .c_w {
   color: white;
