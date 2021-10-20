@@ -242,6 +242,9 @@ fastify.post("/put/data", async (request, reply) => {
     checkProperty(request.body.data, "id");
     checkProperty(request.body.data, "text");
 
+    if(request.body.data.text == "")
+      throw new Error("Пустое свойство text")
+
     const client = new Client(autorization_settings);
     client.connect();
 

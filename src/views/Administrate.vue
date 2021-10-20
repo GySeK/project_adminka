@@ -1,88 +1,128 @@
 <template>
-  <div class="wrapper_flex_border_250 flex m_auto fd_c">
-    <span class="b_1" v-if="get_user_error_message != ''">{{
-      get_user_error_message
-    }}</span>
-
-    <span class="mt_10 mb_10">Имя пользователя</span>
-    <input v-model="username" class="input_square-border_1 h_26-2 mb_10" />
-
-    <span class="mb_10">Пароль</span>
-    <input
-      type="password"
-      v-model="password"
-      class="input_square-border_1 h_26-2 mb_10"
-    />
-
-    <button
-      @click="get_user_set_cookie()"
-      class="button_square-border_1 h_26-2 mr_10 mb_10"
-    >
-      Далее
-    </button>
-
-    <div v-if="user_data != null">
-      <router-link class="mr_10" to="/">Поиск</router-link>
-      <router-link v-if="checkPermission('write')" class="mr_10" to="/write"
-        >Запись</router-link
+  <div class="wrapper_flex_border_780 m_0_auto flex fw_w ac_start">
+    <div class="mw_200 mb_10 mr_10">
+      <div class="mb_10 c_w b_b">Создать пользователя</div>
+      <div class="mb_10">Введите имя пользователя</div>
+      <input
+        v-model="post_user_username"
+        class="input_square-border_1 h_26-2 mb_10 mr_10 fg_1"
+      />
+      <div class="mb_10">Введите пароль пользователя</div>
+      <input
+        v-model="post_user_password"
+        class="input_square-border_1 h_26-2 mb_10 mr_10 fg_1"
+      />
+      <div class="mb_10">Введите атрибуты пользователя(json)</div>
+      <input
+        v-model="post_user_attributes"
+        class="input_square-border_1 h_26-2 mb_10 mr_10 fg_1"
+      />
+      <button
+        @click="post_user()"
+        class="button_square-border_1 h_26-2 mb_10 mr_10"
       >
-      <router-link v-if="checkPermission('administrate')" to="/administrate"
-        >Администрирование</router-link
-      >
+        Отправить
+      </button>
+
+      <div v-if="post_user_correct_request">Запрос выполнен успешно</div>
+      <div class="mb_10" v-if="post_user_correct_request == false">
+        {{ post_user_error_message }}
+      </div>
     </div>
-    <!--{{ user_data }}-->
+
+    <div class="mw_200 mb_10">
+      <div class="mb_10 c_w b_b">Удалить пользователя</div>
+      <div class="mb_10">Введите имя пользователя</div>
+      <input
+        v-model="delete_user_username"
+        class="input_square-border_1 h_26-2 mb_10 mr_10 fg_1"
+      />
+      <button
+        @click="delete_user()"
+        class="button_square-border_1 h_26-2 mb_10 mr_10"
+      >
+        Отправить
+      </button>
+
+      <div v-if="delete_user_correct_request">Запрос выполнен успешно</div>
+      <div class="mb_10" v-if="delete_user_correct_request == false">
+        {{ delete_user_error_message }}
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import "@/assets/main.css";
 import axios from "axios";
-import Cookies from 'js-cookie'
+import Cookies from "js-cookie";
 
 export default {
   data() {
     return {
-      //data
-      list_records: [],
-      search_string: "",
+      //user_functions
+      post_user_username: "",
+      post_user_password: "",
+      post_user_attributes: "",
+
+      delete_user_username: "",
 
       //user
-      username: null,
-      password: null,
       user_data: null,
-      get_user_error_message: "",
+
+      //user_requests
+      post_user_error_message: "",
+      post_user_correct_request: null,
+
+      delete_user_error_message: "",
+      delete_user_correct_request: null,
     };
   },
   methods: {
-    get_user_set_cookie() {
-      if (this.username == null || this.password == null) {
-        this.get_user_error_message = "Введите имя пользователя или пароль";
-        return;
-      }
+    post_user() {
       axios
-        .post("/get/user", {
-          authorization: { username: this.username, password: this.password },
+        .post("/post/user", {
+          authorization: {
+            username: this.user_data.username,
+            password: this.user_data.password,
+          },
+          data: {
+            username: this.post_user_username,
+            password: this.post_user_password,
+            attributes: this.post_user_attributes,
+          },
         })
-        .then((response) => {
-          this.user_data = response.data;
-          Cookies.set("user", JSON.stringify(this.user_data))
-          //const user = JSON.parse(Cookies.get('user'))
-          //console.log(user.attributes.permissions)
-          this.get_user_error_message = "";
+        .then(() => {
+          this.post_user_correct_request = true;
         })
-        .catch(() => {
-          this.get_user_error_message =
-            "Произошла ошибка при выполнении запроса";
+        .catch((err) => {
+          this.post_user_error_message = `Произошла ошибка при выполнении запроса (${err.response.data.message})`;
+          this.post_user_correct_request = false;
         });
     },
-    checkPermission(permission_parameter) {
-      for (let user_data_attributes_permission of this.user_data.attributes
-        .permissions) {
-        if (user_data_attributes_permission == permission_parameter)
-          return true;
-      }
-      return false;
+    delete_user() {
+      axios
+        .post("/delete/user", {
+          authorization: {
+            username: this.user_data.username,
+            password: this.user_data.password,
+          },
+          data: {
+            username: this.delete_user_username,
+          },
+        })
+        .then(() => {
+          this.delete_user_correct_request = true;
+        })
+        .catch((err) => {
+          this.delete_user_error_message = `Произошла ошибка при выполнении запроса (${err.response.data.message})`;
+          this.delete_user_correct_request = false;
+        });
     },
+  },
+  mounted() {
+    if ("user" in Cookies.get())
+      this.user_data = JSON.parse(Cookies.get("user"));
   },
 };
 </script>
