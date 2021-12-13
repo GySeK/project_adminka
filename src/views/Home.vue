@@ -66,10 +66,8 @@
 </template>
 
 <script>
-import "@/assets/main.css";
 import axios from "axios";
 import Cookies from "js-cookie";
-
 export default {
   data() {
     return {
@@ -77,7 +75,6 @@ export default {
       list_records: [],
       search_string: "",
       load_list_records_error_message: "",
-
       //user
       user_data: null,
     };
@@ -85,7 +82,7 @@ export default {
   methods: {
     load_list_records() {
       axios
-        .post("/get/data", { data: { search_string: this.search_string } })
+        .post("/api/get/data", { data: { search_string: this.search_string } })
         .then((response) => (this.list_records = response.data))
         .catch(() => {
           this.load_list_records_error_message =
@@ -107,11 +104,8 @@ export default {
   },
   mounted() {
     this.load_list_records();
-
     if ("user" in Cookies.get())
       this.user_data = JSON.parse(Cookies.get("user"));
   },
 };
 </script>
-
-<style></style>

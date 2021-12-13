@@ -1,8 +1,8 @@
-#app {
-  display: flex;
-}
 .m_auto {
   margin: auto !important;
+}
+#app {
+  display: flex;
 }
 .m_0_auto {
   margin: 0 auto !important;

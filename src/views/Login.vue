@@ -35,7 +35,6 @@
 </template>
 
 <script>
-import "@/assets/main.css";
 import axios from "axios";
 import Cookies from 'js-cookie'
 
@@ -60,7 +59,7 @@ export default {
         return;
       }
       axios
-        .post("/get/user", {
+        .post("/api/get/user", {
           authorization: { username: this.username, password: this.password },
         })
         .then((response) => {
@@ -87,5 +86,3 @@ export default {
   },
 };
 </script>
-
-<style></style>

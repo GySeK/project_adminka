@@ -1,3 +1,4 @@
+
 <template>
   <div class="wrapper_flex_border_780 m_0_auto flex fw_w ac_start">
     <div class="mw_200 mb_10 mr_10">
@@ -53,10 +54,8 @@
 </template>
 
 <script>
-import "@/assets/main.css";
 import axios from "axios";
 import Cookies from "js-cookie";
-
 export default {
   data() {
     return {
@@ -64,16 +63,12 @@ export default {
       post_user_username: "",
       post_user_password: "",
       post_user_attributes: "",
-
       delete_user_username: "",
-
       //user
       user_data: null,
-
       //user_requests
       post_user_error_message: "",
       post_user_correct_request: null,
-
       delete_user_error_message: "",
       delete_user_correct_request: null,
     };
@@ -81,7 +76,7 @@ export default {
   methods: {
     post_user() {
       axios
-        .post("/post/user", {
+        .post("/api/post/user", {
           authorization: {
             username: this.user_data.username,
             password: this.user_data.password,
@@ -102,7 +97,7 @@ export default {
     },
     delete_user() {
       axios
-        .post("/delete/user", {
+        .post("/api/delete/user", {
           authorization: {
             username: this.user_data.username,
             password: this.user_data.password,
@@ -126,5 +121,3 @@ export default {
   },
 };
 </script>
-
-<style></style>

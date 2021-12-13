@@ -66,7 +66,6 @@
 </template>
 
 <script>
-import "@/assets/main.css";
 import axios from "axios";
 import Cookies from "js-cookie";
 
@@ -98,7 +97,7 @@ export default {
   methods: {
     post_data() {
       axios
-        .post("/post/data", {
+        .post("/api/post/data", {
           authorization: {
             username: this.user_data.username,
             password: this.user_data.password
@@ -116,7 +115,7 @@ export default {
     },
     put_data() {
       axios
-        .post("/put/data", {
+        .post("/api/put/data", {
           authorization: {
             username: this.user_data.username,
             password: this.user_data.password
@@ -137,7 +136,7 @@ export default {
     },
     delete_data() {
       axios
-        .post("/delete/data", {
+        .post("/api/delete/data", {
           authorization: {
             username: this.user_data.username,
             password: this.user_data.password
@@ -170,5 +169,3 @@ export default {
   },
 };
 </script>
-
-<style></style>
