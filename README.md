@@ -17,25 +17,26 @@ sudo systemctl enable nginx
 ### Конфиг в /etc/nginx/sites-available
 
 ```
-server {
-  listen 80;
-  server_name api.localhost;
+events {
+    multi_accept on;
+    accept_mutex off;
+    worker_connections 1024;
+}
+http{
+    server {
+        listen 80;
 
-  location / {
-    proxy_pass http://127.0.0.1:3000;
-    proxy_set_header Host $host;
-  }
+        location /api {
+            proxy_pass http://127.0.0.1:3000;
+        }
+
+
+        location / {
+            root /var/www/project_adminka/public;
+        }
+    }
 }
 
-server {
-  listen 80;
-  server_name localhost;
-
-  location / {
-    root /var/www/html;
-    autoindex off;
-  }
-}
 ```
 
 ## postgresql
