@@ -38,7 +38,7 @@ async function check_login(object) {
   if (!(await get_login_state(object))) throw new Error("Не удалось авторизироваться");
 }
 
-fastify.post("/get/data", async (request, reply) => {
+fastify.post("/api/get/data", async (request, reply) => {
   try {
     const client = new Client(autorization_settings);
     client.connect();
@@ -76,7 +76,7 @@ fastify.post("/get/data", async (request, reply) => {
   }
 });
 
-fastify.post("/get/user", async (request, reply) => {
+fastify.post("/api/get/user", async (request, reply) => {
   try {
     checkProperty(request.body, "authorization");
     await check_login(request.body.authorization);
@@ -97,7 +97,7 @@ fastify.post("/get/user", async (request, reply) => {
   }
 });
 
-fastify.post("/get/login_state", async (request, reply) => {
+fastify.post("/api/get/login_state", async (request, reply) => {
   try {
     checkProperty(request.body, "authorization");
     return await get_login_state(request.body.authorization);
@@ -129,7 +129,7 @@ async function check_permission(object, permission) {
     throw new Error("Нет permission у пользователя");
 }
 
-fastify.post("/post/data", async (request, reply) => {
+fastify.post("/api/post/data", async (request, reply) => {
   try {
     checkProperty(request.body, "authorization");
     await check_login(request.body.authorization);
@@ -156,7 +156,7 @@ fastify.post("/post/data", async (request, reply) => {
   }
 });
 
-fastify.post("/post/user", async (request, reply) => {
+fastify.post("/api/post/user", async (request, reply) => {
   try {
     checkProperty(request.body, "authorization");
     await check_login(request.body.authorization);
@@ -186,7 +186,7 @@ fastify.post("/post/user", async (request, reply) => {
   }
 });
 
-fastify.post("/delete/data", async (request, reply) => {
+fastify.post("/api/delete/data", async (request, reply) => {
   try {
     checkProperty(request.body, "authorization");
     await check_login(request.body.authorization);
@@ -209,7 +209,7 @@ fastify.post("/delete/data", async (request, reply) => {
   }
 });
 
-fastify.post("/delete/user", async (request, reply) => {
+fastify.post("/api/delete/user", async (request, reply) => {
   try {
     checkProperty(request.body, "authorization");
     await check_login(request.body.authorization);
@@ -232,7 +232,7 @@ fastify.post("/delete/user", async (request, reply) => {
   }
 });
 
-fastify.post("/put/data", async (request, reply) => {
+fastify.post("/api/put/data", async (request, reply) => {
   try {
     checkProperty(request.body, "authorization");
     await check_login(request.body.authorization);
@@ -260,7 +260,7 @@ fastify.post("/put/data", async (request, reply) => {
   }
 });
 
-fastify.post("/put/user/username", async (request, reply) => {
+fastify.post("/api/put/user/username", async (request, reply) => {
   try {
     checkProperty(request.body, "authorization");
     await check_login(request.body.authorization);
@@ -283,7 +283,7 @@ fastify.post("/put/user/username", async (request, reply) => {
   }
 });
 
-fastify.post("/put/user/password", async (request, reply) => {
+fastify.post("/api/put/user/password", async (request, reply) => {
   try {
     checkProperty(request.body, "authorization");
     await check_login(request.body.authorization);
